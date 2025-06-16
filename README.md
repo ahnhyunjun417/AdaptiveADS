@@ -54,3 +54,11 @@ docker run -e SDL_VIDEODRIVER=offscreen -e SDL_HINT_CUDA_DEVICE=0 -p 2200-2202:2
 export PYTHONPATH=$PYTHONPATH:/path/to/leaderboard
 export PYTHONPATH=$PYTHONPATH:/path/to/leaderboard
 ```
+### How to run run_evaluation.sh
+```shell
+bash run_evaluation.sh {agent type} {port} {route name} {scenario name}
+```
+- Agent: `basic`, `hybrid`, `transfuser`
+- Port: `2000` as a default
+- Route: Check names of the files in `/leaderboard/data/routes` directory
+- Scenario: Check names of the files in  `/leaderboard/data/scenarios` directory

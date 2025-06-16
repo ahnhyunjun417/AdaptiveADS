@@ -72,9 +72,13 @@ class LeaderboardEvaluator(object):
         Setup ScenarioManager
         """
         self.statistics_manager = statistics_manager
-        self.sensors = None
+        self.sensors, self.manager= None, None
         self.sensor_icons = []
         self._vehicle_lights = carla.VehicleLightState.Position | carla.VehicleLightState.LowBeam
+
+        # Create the agent timer
+        self._agent_watchdog = Watchdog(int(float(args.timeout)))
+        signal.signal(signal.SIGINT, self._signal_handler)
 
         # First of all, we need to create the client that will send the requests
         # to the simulator. Here we'll assume the simulator is accepting
@@ -102,10 +106,6 @@ class LeaderboardEvaluator(object):
         # Time control for summary purposes
         self._start_time = GameTime.get_time()
         self._end_time = None
-
-        # Create the agent timer
-        self._agent_watchdog = Watchdog(int(float(args.timeout)))
-        signal.signal(signal.SIGINT, self._signal_handler)
 
     def _signal_handler(self, signum, frame):
         """
@@ -475,6 +475,7 @@ def main():
 
     statistics_manager = StatisticsManager()
 
+    leaderboard_evaluator = None
     try:
         leaderboard_evaluator = LeaderboardEvaluator(arguments, statistics_manager)
         leaderboard_evaluator.run(arguments)
@@ -482,8 +483,8 @@ def main():
     except Exception as e:
         traceback.print_exc()
     finally:
-        del leaderboard_evaluator
-
+        if leaderboard_evaluator is not None:
+            del leaderboard_evaluator
 
 if __name__ == '__main__':
     main()
