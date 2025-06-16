@@ -46,3 +46,11 @@ docker run -e SDL_VIDEODRIVER=offscreen -e SDL_HINT_CUDA_DEVICE=0 -p 2000-2002:2
 docker run -e SDL_VIDEODRIVER=offscreen -e SDL_HINT_CUDA_DEVICE=0 -p 2100-2102:2100-2102 -itd --name carla2 --rm --gpus all carla:0.9.10.1.1 ./CarlaUE4.sh -world-port=2100 -opengl
 docker run -e SDL_VIDEODRIVER=offscreen -e SDL_HINT_CUDA_DEVICE=0 -p 2200-2202:2200-2202 -itd --name carla3 --rm --gpus all carla:0.9.10.1.1 ./CarlaUE4.sh -world-port=2200 -opengl
 ```
+
+### Before run run_evaluation.sh  
+1. Copy /AdaptiveADS/carla/PythonAPI/carla/agents to /AdaptiveADS/leaderboard/agents
+2. Add /AdaptiveADS/leaderboard and /AdaptiveADS/scenario_runner to PYTHONPATH
+```shell
+export PYTHONPATH=$PYTHONPATH:/path/to/leaderboard
+export PYTHONPATH=$PYTHONPATH:/path/to/leaderboard
+```
