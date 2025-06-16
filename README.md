@@ -60,5 +60,5 @@ bash run_evaluation.sh {agent type} {port} {route name} {scenario name}
 ```
 - Agent: `basic`, `hybrid`, `transfuser`
 - Port: `2000` as a default
-- Route: Check names of the files in `/leaderboard/data/routes` directory
-- Scenario: Check names of the files in  `/leaderboard/data/scenarios` directory
+- Route: Check names of the files in `/leaderboard/data/routes` directory (without extension)
+- Scenario: Check names of the files in  `/leaderboard/data/scenarios` directory (without extension)
