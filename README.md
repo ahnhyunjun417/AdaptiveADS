@@ -48,12 +48,11 @@ docker run -e SDL_VIDEODRIVER=offscreen -e SDL_HINT_CUDA_DEVICE=0 -p 2200-2202:2
 ```
 
 ### Before run run_evaluation.sh  
-1. Copy /AdaptiveADS/carla/PythonAPI/carla/agents to /AdaptiveADS/leaderboard/agents
-2. Add /AdaptiveADS/leaderboard and /AdaptiveADS/scenario_runner to PYTHONPATH
-```shell
-export PYTHONPATH=$PYTHONPATH:/path/to/leaderboard
-export PYTHONPATH=$PYTHONPATH:/path/to/leaderboard
+Change the WORK_DIR of run_evaluation.py
+```bash
+export WORK_DIR=/home/hjahn/AdaptiveADS
 ```
+
 ### How to run run_evaluation.sh
 ```shell
 bash run_evaluation.sh {agent type} {port} {route name} {scenario name}
