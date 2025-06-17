@@ -224,6 +224,7 @@ class HybridAgent(autonomous_agent.AutonomousAgent):
         # Load model files
         self.nets = []
         self.model_count = 0  # Counts how many models are in our ensemble
+        print("HJ-path_to_conf_file:", path_to_conf_file)
         for file in os.listdir(path_to_conf_file):
             if file.endswith(".pth"):
                 self.model_count += 1
@@ -531,9 +532,10 @@ class HybridAgent(autonomous_agent.AutonomousAgent):
             self.forced_move += 1
 
         # forward pass
+        pred_wps = []
+        bounding_boxes = []
+        print("HJ-Model Count:", self.model_count)
         with torch.no_grad():
-            pred_wps = []
-            bounding_boxes = []
             for i in range(self.model_count):
                 rotated_bb = []
                 if self.backbone == 'transFuser':
@@ -564,12 +566,14 @@ class HybridAgent(autonomous_agent.AutonomousAgent):
                 else:
                     raise "The chosen vision backbone does not exist. The options are: transFuser, late_fusion, geometric_fusion, latentTF"
 
+                print("HJ-check the intermediate output:", pred_wp)
                 pred_wps.append(pred_wp)
                 bounding_boxes.append(rotated_bb)
 
         bbs_vehicle_coordinate_system = non_maximum_suppression(bounding_boxes, self.iou_threshold_nms)
 
         self.bb_buffer.append(bbs_vehicle_coordinate_system)
+        print("HJ-check the prediction list:", pred_wps)
         self.pred_wp = torch.stack(pred_wps, dim=0).mean(dim=0)  # Average the predictions from the ensembles
 
         # transform to local coordinates

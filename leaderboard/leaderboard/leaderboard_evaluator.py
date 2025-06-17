@@ -26,6 +26,7 @@ import sys
 import carla
 import copy
 import signal
+import torch
 
 from srunner.scenariomanager.carla_data_provider import *
 from srunner.scenariomanager.timer import GameTime
@@ -266,6 +267,7 @@ class LeaderboardEvaluator(object):
         try:
             self._agent_watchdog.start()
             agent_class_name = getattr(self.module_agent, 'get_entry_point')()
+            print(self.module_agent, agent_class_name, args.agent_config)
             self.agent_instance = getattr(self.module_agent, agent_class_name)(args.agent_config)
             config.agent = self.agent_instance
 
