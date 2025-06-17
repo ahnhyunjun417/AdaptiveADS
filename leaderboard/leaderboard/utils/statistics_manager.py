@@ -76,7 +76,7 @@ def compute_route_length(config):
     return route_length
 
 
-class StatisticsManager(object):
+class  StatisticsManager(object):
 
     """
     This is the statistics manager for the CARLA leaderboard.

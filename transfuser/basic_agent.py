@@ -6,7 +6,6 @@ from agents.navigation.basic_agent import BasicAgent
 from srunner.autoagents.autonomous_agent import AutonomousAgent
 from srunner.scenariomanager.carla_data_provider import CarlaDataProvider
 
-
 def get_entry_point():
     return 'NpcAgent'
 

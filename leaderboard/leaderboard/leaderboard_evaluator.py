@@ -50,7 +50,8 @@ sensors_to_icons = {
     'sensor.other.gnss':        'carla_gnss',
     'sensor.other.imu':         'carla_imu',
     'sensor.opendrive_map':     'carla_opendrive_map',
-    'sensor.speedometer':       'carla_speedometer'
+    'sensor.speedometer':       'carla_speedometer',
+    'sensor.camera.dms':        'carla_camera_dms',
 }
 
 
@@ -267,7 +268,7 @@ class LeaderboardEvaluator(object):
         try:
             self._agent_watchdog.start()
             agent_class_name = getattr(self.module_agent, 'get_entry_point')()
-            print(self.module_agent, agent_class_name, args.agent_config)
+            
             self.agent_instance = getattr(self.module_agent, agent_class_name)(args.agent_config)
             config.agent = self.agent_instance
 
@@ -277,7 +278,7 @@ class LeaderboardEvaluator(object):
                 track = self.agent_instance.track
 
                 AgentWrapper.validate_sensor_configuration(self.sensors, track, args.track)
-
+                
                 self.sensor_icons = [sensors_to_icons[sensor['type']] for sensor in self.sensors]
                 self.statistics_manager.save_sensors(self.sensor_icons, args.checkpoint)
 

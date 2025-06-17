@@ -63,7 +63,8 @@ class AgentWrapper(object):
         'sensor.lidar.ray_cast_semantic',
         'sensor.other.radar',
         'sensor.other.gnss',
-        'sensor.other.imu'
+        'sensor.other.imu',
+        'sensor.camera.dms',
     ]
 
     _agent = None
@@ -234,7 +235,7 @@ class AgentWrapper(object):
         Ensure that the sensor configuration is valid, in case the challenge mode is used
         Returns true on valid configuration, false otherwise
         """
-        if Track(selected_track) != agent_track:
+        if Track(selected_track) is not agent_track:
             raise SensorConfigurationInvalid("You are submitting to the wrong track [{}]!".format(Track(selected_track)))
 
         sensor_count = {}

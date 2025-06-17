@@ -14,7 +14,7 @@ import carla
 from srunner.autoagents.sensor_interface import SensorInterface
 from srunner.scenariomanager.timer import GameTime
 from srunner.tools.route_manipulation import downsample_route
-
+from leaderboard.autoagents.autonomous_agent import Track
 
 class AutonomousAgent(object):
 
@@ -23,6 +23,7 @@ class AutonomousAgent(object):
     """
 
     def __init__(self, path_to_conf_file):
+        self.track = Track.SENSORS
         #  current global plans to reach a destination
         self._global_plan = None
         self._global_plan_world_coord = None
