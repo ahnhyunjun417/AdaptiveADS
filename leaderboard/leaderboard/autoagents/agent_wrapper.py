@@ -33,7 +33,8 @@ SENSORS_LIMITS = {
     'sensor.other.gnss': 1,
     'sensor.other.imu': 1,
     'sensor.opendrive_map': 1,
-    'sensor.speedometer': 1
+    'sensor.speedometer': 1,
+    'sensor.camera.dms': 10,
 }
 
 
@@ -90,6 +91,12 @@ class AgentWrapper(object):
         """
         bp_library = CarlaDataProvider.get_world().get_blueprint_library()
         for sensor_spec in self._agent.sensors():
+            ### Get sensor type
+            sensor_type = str(sensor_spec['type'])
+            ### Convert sensor type to sensor.camera.rgb if we get DMS
+            if sensor_type.startswith('sensor.camera.dms'):
+                sensor_type = 'sensor.camera.rgb'
+
             # These are the pseudosensors (not spawned)
             if sensor_spec['type'].startswith('sensor.opendrive_map'):
                 # The HDMap pseudo sensor is created directly here
@@ -100,7 +107,7 @@ class AgentWrapper(object):
                 sensor = SpeedometerReader(vehicle, frame_rate)
             # These are the sensors spawned on the carla world
             else:
-                bp = bp_library.find(str(sensor_spec['type']))
+                bp = bp_library.find(sensor_type)
                 if sensor_spec['type'].startswith('sensor.camera.semantic_segmentation'):
                     bp.set_attribute('image_size_x', str(sensor_spec['width']))
                     bp.set_attribute('image_size_y', str(sensor_spec['height']))
@@ -122,7 +129,7 @@ class AgentWrapper(object):
                                                      roll=sensor_spec['roll'],
                                                      yaw=sensor_spec['yaw'])
                 elif sensor_spec['type'].startswith('sensor.camera.dms'):
-                    bp = bp_library.find('sensor.camera.rgb')
+                    # bp = bp_library.find('sensor.camera.rgb')
                     bp.set_attribute('image_size_x', str(sensor_spec['width']))
                     bp.set_attribute('image_size_y', str(sensor_spec['height']))
 

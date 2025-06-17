@@ -139,7 +139,8 @@ class CallBack(object):
         self.past_state = "Normal"
         self.past_image = cv2.imread('normal_image.jpg')
 
-        self._data_provider.register_sensor(tag, sensor_type, sensor)
+        # self._data_provider.register_sensor(tag, sensor_type, sensor) ### Sensor example: Actor(id=2811, type=sensor.camera.rgb)
+        self._data_provider.register_sensor(tag, sensor)
 
     def __call__(self, data):
         if self._dms is not None:

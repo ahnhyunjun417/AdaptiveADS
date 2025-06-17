@@ -51,7 +51,7 @@ sensors_to_icons = {
     'sensor.other.imu':         'carla_imu',
     'sensor.opendrive_map':     'carla_opendrive_map',
     'sensor.speedometer':       'carla_speedometer',
-    'sensor.camera.dms':        'carla_camera_dms',
+    'sensor.camera.dms':        'carla_dms',
 }
 
 
@@ -276,7 +276,7 @@ class LeaderboardEvaluator(object):
             if not self.sensors:
                 self.sensors = self.agent_instance.sensors()
                 track = self.agent_instance.track
-
+                
                 AgentWrapper.validate_sensor_configuration(self.sensors, track, args.track)
                 
                 self.sensor_icons = [sensors_to_icons[sensor['type']] for sensor in self.sensors]
