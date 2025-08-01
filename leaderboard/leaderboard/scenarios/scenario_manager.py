@@ -98,11 +98,7 @@ class ScenarioManager(object):
             while True:
                 image = DataProvider.get_sensor_data('front_camera')
                 if image is not None:
-                    if self._gui_lock:
-                        with self._gui_lock:
-                            array = np.frombuffer(image.raw_data, dtype=np.uint8).reshape((image.height, image.width, 4))[:, :, :3]
-                    else:
-                        array = np.frombuffer(image.raw_data, dtype=np.uint8).reshape((image.height, image.width, 4))[:, :, :3]
+                    array = np.frombuffer(image.raw_data, dtype=np.uint8).reshape((image.height, image.width, 4))[:, :, :3]
                     cv2.imshow("Front Camera", array)
                     if cv2.waitKey(1) == 27:  # ESC key
                         break
@@ -111,8 +107,6 @@ class ScenarioManager(object):
             pass
         finally:
             cv2.destroyAllWindows()
-            if camera:
-                camera.stop()
 
     def signal_handler(self, signum, frame):
         """
@@ -148,7 +142,6 @@ class ScenarioManager(object):
         # To print the scenario tree uncomment the next line
         # py_trees.display.render_dot_tree(self.scenario_tree)
         self._agent.setup_sensors(self.ego_vehicles[0], self._debug_mode, drivers_config, self._gui_lock)
-        print(DataProvider._sensor_data.keys())
 
         if self._gui_support:
             self._gui_thread.start()
