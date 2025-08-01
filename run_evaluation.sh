@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export WORK_DIR=/home/hjahn/AdaptiveADS
+export WORK_DIR=/mnt/hdd/AdaptiveADS
 export CARLA_ROOT=${WORK_DIR}/carla
 export CARLA_SERVER=${CARLA_ROOT}/CarlaUE4.sh
 export PYTHONPATH=$PYTHONPATH:${CARLA_ROOT}/PythonAPI
