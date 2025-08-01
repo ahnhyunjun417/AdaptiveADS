@@ -103,7 +103,7 @@ class LeaderboardEvaluator(object):
         self.module_agent = importlib.import_module(module_name)
 
         # Create the ScenarioManager
-        self.manager = ScenarioManager(args.timeout, args.debug > 1, gui_support=args.gui_support)
+        self.manager = ScenarioManager(args.timeout, args.debug > 1)
 
         # Time control for summary purposes
         self._start_time = GameTime.get_time()
@@ -463,9 +463,6 @@ def main():
                         type=int,
                         default=1,
                         help='Number of repetitions per route.')
-    parser.add_argument('--gui_support',
-                        action='store_true',
-                        help='GUI support for CARLA client (default: False, action=store_true)')
 
     # agent-related options
     parser.add_argument("-a", "--agent", type=str, help="Path to Agent's py file to evaluate", required=True)
