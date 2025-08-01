@@ -14,6 +14,9 @@ from __future__ import print_function
 import signal
 import sys
 import time
+import threading
+import cv2
+import numpy as np
 
 import py_trees
 import carla
@@ -112,7 +115,6 @@ class ScenarioManager(object):
 
         # To print the scenario tree uncomment the next line
         # py_trees.display.render_dot_tree(self.scenario_tree)
-
         self._agent.setup_sensors(self.ego_vehicles[0], self._debug_mode, drivers_config)
 
     def run_scenario(self):
