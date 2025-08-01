@@ -446,7 +446,7 @@ def main():
                         help='Seed used by the TrafficManager (default: 0)')
     parser.add_argument('--carlaProviderSeed', default='2000',
                         help='Seed used by the CarlaProvider (default: 2000)')
-    parser.add_argument('--debug', type=int, help='Run with debug output', default=1)
+    parser.add_argument('--debug', type=int, help='Run with debug output', default=0)
     parser.add_argument('--record', type=str, default='',
                         help='Use CARLA recording feature to create a recording of the scenario')
     parser.add_argument('--timeout', default="600.0",
