@@ -14,6 +14,9 @@ from __future__ import print_function
 import signal
 import sys
 import time
+import threading
+import cv2
+import numpy as np
 
 import py_trees
 import carla
@@ -45,7 +48,7 @@ class ScenarioManager(object):
     """
 
 
-    def __init__(self, timeout, debug_mode=False):
+    def __init__(self, timeout, debug_mode=False, gui_support=False):
         """
         Setups up the parameters, which will be filled at load_scenario()
         """
@@ -78,6 +81,38 @@ class ScenarioManager(object):
         # Register the scenario tick as callback for the CARLA world
         # Use the callback_id inside the signal handler to allow external interrupts
         signal.signal(signal.SIGINT, self.signal_handler)
+
+        ## GUI thread registration
+        self._gui_support = gui_support
+        self._gui_lock = None
+        if gui_support:
+            self._gui_thread = threading.Thread(target=gui_loop)
+            self._gui_thread.daemon = gui_support
+            self._gui_lock = threading.Lock()
+
+    def gui_loop():
+        """
+        
+        """
+        try:
+            while True:
+                image = DataProvider.get_sensor_data('front_camera')
+                if image is not None:
+                    if self._gui_lock:
+                        with self._gui_lock:
+                            array = np.frombuffer(image.raw_data, dtype=np.uint8).reshape((image.height, image.width, 4))[:, :, :3]
+                    else:
+                        array = np.frombuffer(image.raw_data, dtype=np.uint8).reshape((image.height, image.width, 4))[:, :, :3]
+                    cv2.imshow("Front Camera", array)
+                    if cv2.waitKey(1) == 27:  # ESC key
+                        break
+                time.sleep(0.03)  # 30 FPS
+        except:
+            pass
+        finally:
+            cv2.destroyAllWindows()
+            if camera:
+                camera.stop()
 
     def signal_handler(self, signum, frame):
         """
@@ -112,8 +147,11 @@ class ScenarioManager(object):
 
         # To print the scenario tree uncomment the next line
         # py_trees.display.render_dot_tree(self.scenario_tree)
+        self._agent.setup_sensors(self.ego_vehicles[0], self._debug_mode, drivers_config, self._gui_lock)
+        print(DataProvider._sensor_data.keys())
 
-        self._agent.setup_sensors(self.ego_vehicles[0], self._debug_mode, drivers_config)
+        if self._gui_support:
+            self._gui_thread.start()
 
     def run_scenario(self):
         """
@@ -198,6 +236,9 @@ class ScenarioManager(object):
 
         self.scenario_duration_system = self.end_system_time - self.start_system_time
         self.scenario_duration_game = self.end_game_time - self.start_game_time
+        
+        if self._gui_support:
+            cv2.destroyAllWindows()
 
         if self.get_running_status():
             if self.scenario is not None:

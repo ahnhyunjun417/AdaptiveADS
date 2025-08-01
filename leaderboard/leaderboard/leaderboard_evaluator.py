@@ -103,7 +103,7 @@ class LeaderboardEvaluator(object):
         self.module_agent = importlib.import_module(module_name)
 
         # Create the ScenarioManager
-        self.manager = ScenarioManager(args.timeout, args.debug > 1)
+        self.manager = ScenarioManager(args.timeout, args.debug > 1, gui_support=args.gui_support)
 
         # Time control for summary purposes
         self._start_time = GameTime.get_time()
@@ -446,7 +446,7 @@ def main():
                         help='Seed used by the TrafficManager (default: 0)')
     parser.add_argument('--carlaProviderSeed', default='2000',
                         help='Seed used by the CarlaProvider (default: 2000)')
-    parser.add_argument('--debug', type=int, help='Run with debug output', default=0)
+    parser.add_argument('--debug', type=int, help='Run with debug output', default=1)
     parser.add_argument('--record', type=str, default='',
                         help='Use CARLA recording feature to create a recording of the scenario')
     parser.add_argument('--timeout', default="600.0",
@@ -463,6 +463,9 @@ def main():
                         type=int,
                         default=1,
                         help='Number of repetitions per route.')
+    parser.add_argument('--gui_support',
+                        action='store_true',
+                        help='GUI support for CARLA client (default: False, action=store_true)')
 
     # agent-related options
     parser.add_argument("-a", "--agent", type=str, help="Path to Agent's py file to evaluate", required=True)
