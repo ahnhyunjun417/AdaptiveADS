@@ -51,6 +51,7 @@ class CarlaDataProvider(object):  # pylint: disable=too-many-public-methods
     _actor_transform_map = dict()
     _traffic_light_map = dict()
     _carla_actor_pool = dict()
+    _carla_sensor_buffer = dict()
     _client = None
     _world = None
     _map = None
@@ -61,6 +62,18 @@ class CarlaDataProvider(object):  # pylint: disable=too-many-public-methods
     _ego_vehicle_route = None
     _traffic_manager_port = 8000
     _rng = random.RandomState(2000)
+
+    @staticmethod
+    def update_sensor_data(role: str, data):
+        CarlaDataProvider._carla_sensor_buffer[role] = data
+
+    @staticmethod
+    def get_sensor_data(role: str):
+        return CarlaDataProvider._carla_sensor_buffer.get(role, None)
+
+    @staticmethod
+    def get_all_sensor_data():
+        return dict(CarlaDataProvider._carla_sensor_buffer)
 
     @staticmethod
     def register_actor(actor):
