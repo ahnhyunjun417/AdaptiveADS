@@ -85,29 +85,64 @@ class ScenarioManager(object):
         self._gui_support = gui_support
         self._gui_lock = None
         if gui_support:
-            self._gui_thread = threading.Thread(target=gui_loop)
+            self._gui_thread = threading.Thread(target=self.gui_loop)
             self._gui_thread.daemon = gui_support
             self._gui_lock = threading.Lock()
 
-    def gui_loop():
+    def gui_loop(self, n_cols=2, target_size=(640, 480)):
         """
         Fetch and visualize the sensor data
         """
         try:
             while True:
-                world = CarlaDataProvider.get_world()
-                images = world.get_blueprint_library()
-                for image in images:
-                    if self._gui_lock:
-                        with self._gui_lock:
-                            array = np.frombuffer(image.raw_data, dtype=np.uint8).reshape((image.height, image.width, 4))[:, :, 3]
-                    else:
-                        array = np.frombuffer(image.raw_data, dtype=np.uint8).reshape((image.height, image.width, 4))[:, :, 3]
-                cv2.imshow("key", array)
+                # print("hello")
+                sensor_data_dict = self._agent._agent.sensor_interface.get_data() ### dict[tag] = (timestamp, data)
+                # images = [sensor[0][:, :, 3] for sensor in sensor_data_dict.values()]
+
+                resized_images = []
+                for tag, (timestamp, frame) in sensor_data_dict.items():
+                    # print(tag)
+                    # if tag == "DMS" or tag == "Left":
+                    #     print(type(timestamp), type(frame))
+                    if frame is None or not isinstance(frame, np.ndarray):
+                        continue
+                    # print("Original:", frame.shape, frame.dtype, type(frame))
+                    if frame.dtype != np.uint8:
+                        continue
+                    
+                    img_resized = cv2.resize(frame[:, :, :3], target_size)
+                    # print("Input:", frame[:, :, :3].shape,"Resized: ", img_resized.shape)
+                    cv2.putText(img_resized, tag, (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 0), 2)
+                    resized_images.append(img_resized)
+
+                n_images = len(resized_images)
+                n_rows = (n_images + n_cols - 1) // n_cols
+
+                blank = np.zeros((target_size[1], target_size[0], 3))
+                if n_images > 0:
+                    resized_images += [blank] * (n_rows * n_cols - n_images)
+                else:
+                    continue
+
+                rows = []
+                for r in range(n_rows):
+                    # for c in range(n_cols):
+                    #     print("R:", r, "C:", c, resized_images[r * n_cols + c].shape)
+                    row = np.hstack(resized_images[r * n_cols:(r + 1) * n_cols])
+                    rows.append(row)
+                tiled_images = np.vstack(rows)
+                
+                if self._gui_lock:
+                    with self._gui_lock:
+                        cv2.imshow("Carla Adaptive ADS Simulator", tiled_images)
+                else:
+                    cv2.imshow("Carla Adaptive ADS Simulator", tiled_images)
+                
                 if cv2.waitKey(1) == 27: ## ESC Key --> stop
                     break
                 time.sleep(0.03) ## 30 FPS
-        except:
+        except Exception as e:
+            print(e)
             pass
         finally:
             cv2.destroyAllWindows()

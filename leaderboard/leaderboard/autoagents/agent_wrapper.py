@@ -129,18 +129,18 @@ class AgentWrapper(object):
                     sensor_rotation = carla.Rotation(pitch=sensor_spec['pitch'],
                                                      roll=sensor_spec['roll'],
                                                      yaw=sensor_spec['yaw'])
-                elif sensor_spec['type'].startswith('sensor.camera.dms'):
-                    # bp = bp_library.find('sensor.camera.rgb')
-                    bp.set_attribute('image_size_x', str(sensor_spec['width']))
-                    bp.set_attribute('image_size_y', str(sensor_spec['height']))
+                # elif sensor_spec['type'].startswith('sensor.camera.dms'):
+                #     # bp = bp_library.find('sensor.camera.rgb')
+                #     bp.set_attribute('image_size_x', str(sensor_spec['width']))
+                #     bp.set_attribute('image_size_y', str(sensor_spec['height']))
 
-                    bp.set_attribute('fov', str(90))
-                    bp.set_attribute('lens_circle_multiplier', str(3.0))
-                    bp.set_attribute('lens_circle_falloff', str(3.0))
-                    bp.set_attribute('chromatic_aberration_intensity', str(0.5))
-                    bp.set_attribute('chromatic_aberration_offset', str(0))
-                    sensor_location = carla.Location(x=0, y=0, z=0)
-                    sensor_rotation = carla.Rotation(pitch=0, roll=0, yaw=0)
+                #     bp.set_attribute('fov', str(90))
+                #     bp.set_attribute('lens_circle_multiplier', str(3.0))
+                #     bp.set_attribute('lens_circle_falloff', str(3.0))
+                #     bp.set_attribute('chromatic_aberration_intensity', str(0.5))
+                #     bp.set_attribute('chromatic_aberration_offset', str(0))
+                #     sensor_location = carla.Location(x=0, y=0, z=0)
+                #     sensor_rotation = carla.Rotation(pitch=0, roll=0, yaw=0)
                 elif sensor_spec['type'].startswith('sensor.camera'):
                     bp.set_attribute('image_size_x', str(sensor_spec['width']))
                     bp.set_attribute('image_size_y', str(sensor_spec['height']))
@@ -228,7 +228,7 @@ class AgentWrapper(object):
                 sensor = CarlaDataProvider.get_world().spawn_actor(bp, sensor_transform, vehicle)
             # setup callback
             if sensor_spec['type'].startswith('sensor.camera.dms'):
-                sensor.listen(CallBack(sensor_spec['id'], 'sensor.camera.rgb', sensor, self._agent.sensor_interface, drivers_config, gui_lock=gui_lock))
+                sensor.listen(CallBack(sensor_spec['id'], sensor_spec['type'], sensor, self._agent.sensor_interface, drivers_config, gui_lock=gui_lock))
             else:
                 sensor.listen(CallBack(sensor_spec['id'], sensor_spec['type'], sensor, self._agent.sensor_interface, gui_lock=gui_lock))
             self._sensors_list.append(sensor)

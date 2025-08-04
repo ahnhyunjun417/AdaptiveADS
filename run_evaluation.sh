@@ -35,4 +35,5 @@ python3 leaderboard/leaderboard/leaderboard_evaluator.py \
 --agent-config=${TEAM_CONFIG} \
 --track=${CHALLENGE_TRACK_CODENAME} \
 --resume=${RESUME} \
---checkpoint=${CHECKPOINT_ENDPOINT}
+--checkpoint=${CHECKPOINT_ENDPOINT} \
+--gui_support

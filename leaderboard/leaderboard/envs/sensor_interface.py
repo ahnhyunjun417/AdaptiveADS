@@ -136,22 +136,23 @@ class CallBack(object):
         self._tag = tag
         self._data_provider = data_provider
         self._dms = dms
+        self._sensor_type = sensor_type
         self._gui_lock = gui_lock
         self.past_state = "Normal"
-        self.past_image = cv2.imread('normal_image.jpg')
+        self.past_image = cv2.imread('dms_images/normal_image.jpg')
 
         # self._data_provider.register_sensor(tag, sensor_type, sensor) ### Sensor example: Actor(id=2811, type=sensor.camera.rgb)
         self._data_provider.register_sensor(tag, sensor)
 
     def __call__(self, data):
-        if self._dms is not None:
+        if self._sensor_type.startswith('sensor.camera.dms'):
             if self._gui_lock:
                 with self._gui_lock:
                     self._parse_dms(self._tag)
             else:
                 self._parse_dms(self._tag)
-        if isinstance(data, carla.libcarla.Image):
-            if self.gui_lock:
+        elif isinstance(data, carla.libcarla.Image):
+            if self._gui_lock:
                 with self._gui_lock:
                     self._parse_image_cb(data, self._tag)
             else:
