@@ -95,24 +95,17 @@ class ScenarioManager(object):
         """
         try:
             while True:
-                # print("hello")
                 sensor_data_dict = self._agent._agent.sensor_interface.get_data() ### dict[tag] = (timestamp, data)
-                # images = [sensor[0][:, :, 3] for sensor in sensor_data_dict.values()]
 
                 resized_images = []
                 for tag, (timestamp, frame) in sensor_data_dict.items():
-                    # print(tag)
-                    # if tag == "DMS" or tag == "Left":
-                    #     print(type(timestamp), type(frame))
                     if frame is None or not isinstance(frame, np.ndarray):
                         continue
-                    # print("Original:", frame.shape, frame.dtype, type(frame))
                     if frame.dtype != np.uint8:
                         continue
                     
                     img_resized = cv2.resize(frame[:, :, :3], target_size)
-                    # print("Input:", frame[:, :, :3].shape,"Resized: ", img_resized.shape)
-                    cv2.putText(img_resized, tag, (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 0), 2)
+                    cv2.putText(img_resized, tag, (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
                     resized_images.append(img_resized)
 
                 n_images = len(resized_images)
@@ -126,8 +119,6 @@ class ScenarioManager(object):
 
                 rows = []
                 for r in range(n_rows):
-                    # for c in range(n_cols):
-                    #     print("R:", r, "C:", c, resized_images[r * n_cols + c].shape)
                     row = np.hstack(resized_images[r * n_cols:(r + 1) * n_cols])
                     rows.append(row)
                 tiled_images = np.vstack(rows)
