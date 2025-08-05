@@ -98,14 +98,21 @@ class ScenarioManager(object):
                 sensor_data_dict = self._agent._agent.sensor_interface.get_data() ### dict[tag] = (timestamp, data)
 
                 resized_images = []
-                for tag, (timestamp, frame) in sensor_data_dict.items():
+                for index, (tag, (timestamp, frame)) in enumerate(sensor_data_dict.items()):
                     if frame is None or not isinstance(frame, np.ndarray):
                         continue
                     if frame.dtype != np.uint8:
                         continue
                     
                     img_resized = cv2.resize(frame[:, :, :3], target_size)
-                    cv2.putText(img_resized, tag, (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
+                    
+                    if index == 0:
+                        current_velocity = self.ego_vehicles[0].get_velocity()
+                        speed = (current_velocity.x ** 2 + current_velocity.y ** 2 + current_velocity.z ** 2) ** 0.5
+                        text = tag + "-- speed: " + str(round(speed * 3.6, 2)) + "km/s"
+                        cv2.putText(img_resized, text, (1, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
+                    else:
+                        cv2.putText(img_resized, tag, (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
                     resized_images.append(img_resized)
 
                 n_images = len(resized_images)

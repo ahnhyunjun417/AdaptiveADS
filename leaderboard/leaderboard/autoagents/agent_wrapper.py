@@ -216,9 +216,9 @@ class AgentWrapper(object):
                 sensor = CarlaDataProvider.get_world().spawn_actor(bp, sensor_transform, vehicle)
             # setup callback
             if sensor_spec['type'].startswith('sensor.camera.dms'):
-                sensor.listen(CallBack(sensor_spec['id'], sensor_spec['type'], sensor, self._agent.sensor_interface, drivers_config, gui_lock=gui_lock))
+                sensor.listen(CallBack(sensor_spec['id'], sensor_spec['type'], sensor, self._agent, drivers_config, gui_lock=gui_lock))
             else:
-                sensor.listen(CallBack(sensor_spec['id'], sensor_spec['type'], sensor, self._agent.sensor_interface, gui_lock=gui_lock))
+                sensor.listen(CallBack(sensor_spec['id'], sensor_spec['type'], sensor, self._agent, gui_lock=gui_lock))
             self._sensors_list.append(sensor)
 
         # Tick once to spawn the sensors

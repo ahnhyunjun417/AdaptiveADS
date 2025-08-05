@@ -132,9 +132,10 @@ class OpenDriveMapReader(BaseReader):
 
 
 class CallBack(object):
-    def __init__(self, tag, sensor_type, sensor, data_provider, dms=None, gui_lock=None):
+    def __init__(self, tag, sensor_type, sensor, agent, dms=None, gui_lock=None):
         self._tag = tag
-        self._data_provider = data_provider
+        self._data_provider = agent.sensor_interface
+        self._agent = agent
         self._dms = dms
         self._sensor_type = sensor_type
         self._gui_lock = gui_lock
@@ -143,6 +144,9 @@ class CallBack(object):
 
         # self._data_provider.register_sensor(tag, sensor_type, sensor) ### Sensor example: Actor(id=2811, type=sensor.camera.rgb)
         self._data_provider.register_sensor(tag, sensor)
+        self._adaptive_ads_support = False
+        if hasattr(self._agent, '_driver_monitoring_data'):
+            self._adaptive_ads_support = True
 
     def __call__(self, data):
         if self._sensor_type.startswith('sensor.camera.dms'):
@@ -174,7 +178,7 @@ class CallBack(object):
 
     def _parse_dms(self, tag):
         time = GameTime.get_time()
-
+        
         if self.past_state == 'drowsiness':
             normal_image = cv2.imread('dms_images/normal_image.jpg')
             drowsiness_image = self.past_image
@@ -193,15 +197,19 @@ class CallBack(object):
             if driver[1] <= time < driver[2]:
                 done = True
                 if driver[0] == 'drowsiness':
-                    past_image = drowsiness_image
-                    self._data_provider.update_sensor(tag, drowsiness_image, drowsiness_image)
+                    self.past_image = drowsiness_image
+                    self.past_state = "drowsiness"
                 elif driver[0] == 'distracted':
-                    past_image = distracted_image
-                    self._data_provider.update_sensor(tag, distracted_image, distracted_image)
+                    self.past_image = distracted_image
+                    self.past_state = "distracted"
 
         if not done:
-            past_image = normal_image
-            self._data_provider.update_sensor(tag, normal_image, normal_image)
+            self.past_image = normal_image
+            self.past_state = "Normal"
+        
+        self._data_provider.update_sensor(tag, self.past_image, self.past_image)
+        if self._adaptive_ads_support:
+            self._agent._driver_monitoring_data = (self.past_state, self.past_image)
 
     # Parsing CARLA physical Sensors
     def _parse_image_cb(self, image, tag):
