@@ -109,7 +109,7 @@ class ScenarioManager(object):
                     if index == 0:
                         current_velocity = self.ego_vehicles[0].get_velocity()
                         speed = (current_velocity.x ** 2 + current_velocity.y ** 2 + current_velocity.z ** 2) ** 0.5
-                        text = tag + "-- speed: " + str(round(speed * 3.6, 2)) + "km/s"
+                        text = tag + "-- speed: " + str(round(speed * 3.6, 2)) + " km/h"
                         cv2.putText(img_resized, text, (1, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
                     else:
                         cv2.putText(img_resized, tag, (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
