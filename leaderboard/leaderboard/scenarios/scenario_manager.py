@@ -83,68 +83,57 @@ class ScenarioManager(object):
         signal.signal(signal.SIGINT, self.signal_handler)
 
         self._gui_support = gui_support
-        self._gui_lock = None
-        if gui_support:
-            self._gui_thread = threading.Thread(target=self.gui_loop)
-            self._gui_thread.daemon = gui_support
-            self._gui_lock = threading.Lock()
+        self._gui_thread = None
+        self._gui_thread_started = False
 
     def gui_loop(self, n_cols=2, target_size=(640, 480)):
         """
         Fetch and visualize the sensor data
         """
-        try:
-            while True:
+        while self._gui_thread_started:
+            try:
                 sensor_data_dict = self._agent._agent.sensor_interface.get_data() ### dict[tag] = (timestamp, data)
+            except:
+                continue
 
-                resized_images = []
-                for index, (tag, (timestamp, frame)) in enumerate(sensor_data_dict.items()):
-                    if frame is None or not isinstance(frame, np.ndarray):
-                        continue
-                    if frame.dtype != np.uint8:
-                        continue
-                    
-                    img_resized = cv2.resize(frame[:, :, :3], target_size)
-                    
-                    if index == 0:
-                        current_velocity = self.ego_vehicles[0].get_velocity()
-                        speed = (current_velocity.x ** 2 + current_velocity.y ** 2 + current_velocity.z ** 2) ** 0.5
-                        text = tag + "-- speed: " + str(round(speed * 3.6, 2)) + " km/h"
-                        cv2.putText(img_resized, text, (1, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
-                    else:
-                        cv2.putText(img_resized, tag, (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
-                    resized_images.append(img_resized)
-
-                n_images = len(resized_images)
-                n_rows = (n_images + n_cols - 1) // n_cols
-
-                blank = np.zeros((target_size[1], target_size[0], 3))
-                if n_images > 0:
-                    resized_images += [blank] * (n_rows * n_cols - n_images)
-                else:
+            resized_images = []
+            for index, (tag, (timestamp, frame)) in enumerate(sensor_data_dict.items()):
+                if frame is None or not isinstance(frame, np.ndarray):
                     continue
-
-                rows = []
-                for r in range(n_rows):
-                    row = np.hstack(resized_images[r * n_cols:(r + 1) * n_cols])
-                    rows.append(row)
-                tiled_images = np.vstack(rows)
+                if frame.dtype != np.uint8:
+                    continue
                 
-                if self._gui_lock:
-                    with self._gui_lock:
-                        cv2.imshow("Carla Adaptive ADS Simulator", tiled_images)
+                img_resized = cv2.resize(frame[:, :, :3], target_size)
+                
+                if index == 0:
+                    current_velocity = self.ego_vehicles[0].get_velocity()
+                    speed = (current_velocity.x ** 2 + current_velocity.y ** 2 + current_velocity.z ** 2) ** 0.5
+                    text = tag + "-- speed: " + str(round(speed * 3.6, 2)) + " km/h"
+                    cv2.putText(img_resized, text, (1, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
                 else:
-                    cv2.imshow("Carla Adaptive ADS Simulator", tiled_images)
-                
-                if cv2.waitKey(1) == 27: ## ESC Key --> stop
-                    break
-                time.sleep(0.03) ## 30 FPS
-        except Exception as e:
-            print(e)
-            pass
-        finally:
-            cv2.destroyAllWindows()
-
+                    cv2.putText(img_resized, tag, (10, 25), cv2.FONT_HERSHEY_SIMPLEX, 0.8, (0, 0, 255), 2)
+                resized_images.append(img_resized)
+            
+            n_images = len(resized_images)
+            n_rows = (n_images + n_cols - 1) // n_cols
+            
+            blank = np.zeros((target_size[1], target_size[0], 3))
+            if n_images > 0:
+                resized_images += [blank] * (n_rows * n_cols - n_images)
+            else:
+                continue
+            
+            rows = []
+            for r in range(n_rows):
+                row = np.hstack(resized_images[r * n_cols:(r + 1) * n_cols])
+                rows.append(row)
+            tiled_images = np.vstack(rows)
+            cv2.imshow("Carla Adaptive ADS Simulator", tiled_images)
+            
+            if cv2.waitKey(1) == 27: ## ESC Key --> stop
+                break
+            time.sleep(0.03) ## 30 FPS
+        cv2.destroyAllWindows()
 
     def signal_handler(self, signum, frame):
         """
@@ -179,10 +168,12 @@ class ScenarioManager(object):
 
         # To print the scenario tree uncomment the next line
         # py_trees.display.render_dot_tree(self.scenario_tree)
-        self._agent.setup_sensors(self.ego_vehicles[0], self._debug_mode, drivers_config, self._gui_lock)
-        if self._gui_support:
+        self._agent.setup_sensors(self.ego_vehicles[0], self._debug_mode, drivers_config)
+        if self._gui_support and not self._gui_thread_started:
+            self._gui_thread = threading.Thread(target=self.gui_loop, daemon=True)
+            self._gui_thread_started = True
             self._gui_thread.start()
-
+            
     def run_scenario(self):
         """
         Trigger the start of the scenario and wait for it to finish/fail
@@ -276,9 +267,6 @@ class ScenarioManager(object):
                 self._agent = None
 
             self.analyze_scenario()
-        
-        if self._gui_support:
-            cv2.destroyAllWindows()
 
     def analyze_scenario(self):
         """

@@ -84,7 +84,7 @@ class AgentWrapper(object):
         """
         return self._agent()
 
-    def setup_sensors(self, vehicle, debug_mode=False, drivers_config=None, gui_lock=None):
+    def setup_sensors(self, vehicle, debug_mode=False, drivers_config=None):
         """
         Create the sensors defined by the user and attach them to the ego-vehicle
         :param vehicle: ego vehicle
@@ -216,9 +216,9 @@ class AgentWrapper(object):
                 sensor = CarlaDataProvider.get_world().spawn_actor(bp, sensor_transform, vehicle)
             # setup callback
             if sensor_spec['type'].startswith('sensor.camera.dms'):
-                sensor.listen(CallBack(sensor_spec['id'], sensor_spec['type'], sensor, self._agent, drivers_config, gui_lock=gui_lock))
+                sensor.listen(CallBack(sensor_spec['id'], sensor_spec['type'], sensor, self._agent, drivers_config))
             else:
-                sensor.listen(CallBack(sensor_spec['id'], sensor_spec['type'], sensor, self._agent, gui_lock=gui_lock))
+                sensor.listen(CallBack(sensor_spec['id'], sensor_spec['type'], sensor, self._agent))
             self._sensors_list.append(sensor)
 
         # Tick once to spawn the sensors

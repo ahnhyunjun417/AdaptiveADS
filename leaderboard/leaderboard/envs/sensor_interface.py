@@ -132,13 +132,12 @@ class OpenDriveMapReader(BaseReader):
 
 
 class CallBack(object):
-    def __init__(self, tag, sensor_type, sensor, agent, dms=None, gui_lock=None):
+    def __init__(self, tag, sensor_type, sensor, agent, dms=None):
         self._tag = tag
         self._data_provider = agent.sensor_interface
         self._agent = agent
         self._dms = dms
         self._sensor_type = sensor_type
-        self._gui_lock = gui_lock
         self.past_state = "Normal"
         self.past_image = cv2.imread('dms_images/normal_image.jpg')
 
@@ -150,17 +149,9 @@ class CallBack(object):
 
     def __call__(self, data):
         if self._sensor_type.startswith('sensor.camera.dms'):
-            if self._gui_lock:
-                with self._gui_lock:
-                    self._parse_dms(self._tag)
-            else:
-                self._parse_dms(self._tag)
+            self._parse_dms(self._tag)
         elif isinstance(data, carla.libcarla.Image):
-            if self._gui_lock:
-                with self._gui_lock:
-                    self._parse_image_cb(data, self._tag)
-            else:
-                self._parse_image_cb(data, self._tag)
+            self._parse_image_cb(data, self._tag)
         elif isinstance(data, carla.libcarla.LidarMeasurement):
             self._parse_lidar_cb(data, self._tag)
         elif isinstance(data, carla.libcarla.SemanticLidarMeasurement):

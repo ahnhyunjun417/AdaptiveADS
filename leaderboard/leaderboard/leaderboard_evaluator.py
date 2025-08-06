@@ -426,6 +426,9 @@ class LeaderboardEvaluator(object):
 
             route_indexer.save_state(args.checkpoint)
 
+        if self.manager._gui_support:
+            self.manager._gui_thread_started = False
+
         # save global statistics
         print("\033[1m> Registering the global statistics\033[0m")
         global_stats_record = self.statistics_manager.compute_global_statistics(route_indexer.total)
